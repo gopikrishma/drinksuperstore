@@ -1,10 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { loadStripe, Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js';
 import { Functions, httpsCallable } from '@angular/fire/functions';  // Import Firebase Functions
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
+  imports:[FormsModule,CommonModule],
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.scss'],
 })
@@ -12,7 +15,13 @@ export class CheckoutComponent {
 
   stripe: Stripe | null = null;
   elements: StripeElements | null = null;
-  card: StripeCardElement | null = null;
+  card: StripeCardElement | any = null;
+  cardExpiry: any;
+  cardCvc: any;
+  email: string ='';
+  nameOnCard: string='';
+  country: string='';
+  postalCode: string='';
 
   // Inject Firebase Functions using Angular's inject function
   private functions = inject(Functions);
@@ -22,17 +31,41 @@ export class CheckoutComponent {
     this.stripe = await loadStripe('pk_test_51Q6zRJ08j24kfnWI5bVXBm9tGA5MvrHLNIycmTApAk0Erf2Odbr0DSJMdbhGgBdKoi3JsQTyODxnqSuOkPC0lwex00fD8Y20PO');
     if (this.stripe) {
       this.elements = this.stripe.elements();
-      this.card = this.elements.create('card'); 
-      console.log(this.card) // Create card element
-      this.card.mount('#card-element');  // Mount card element into the DOM
+      
+      this.elements = this.stripe.elements();
+      
+      // Create Card Number Element
+      this.card = this.elements.create('cardNumber', { style: this.style });
+      this.card.mount('#card-number-element'); 
+
+      // Create Card Expiry Element
+      this.cardExpiry = this.elements.create('cardExpiry', { style: this.style });
+      this.cardExpiry.mount('#card-expiry-element'); 
+
+      // Create Card CVC Element
+      this.cardCvc = this.elements.create('cardCvc', { style: this.style });
+      this.cardCvc.mount('#card-cvc-element'); 
     }
   }
+
+  style = {
+    base: {
+      fontSize: '16px',
+      color: '#32325d',
+      '::placeholder': {
+        color: '#aab7c4'
+      }
+    },
+    invalid: {
+      color: '#fa755a',
+      iconColor: '#fa755a'
+    }
+  };
 
   // Create Payment Intent via Firebase Callable Function
   async createPaymentIntent(amount: number) {
     const callable = httpsCallable(this.functions, 'createPaymentIntent');
-    console.lo
-  
+
     try {
       // Call Firebase function and await the response (which should contain client_secret)
       const response : any = await callable({ amount });
@@ -72,7 +105,7 @@ export class CheckoutComponent {
   }
   
   // Trigger the payment when the user submits the form
-  onSubmit() {
+  onSubmit(event:any) {
     this.createPaymentIntent(5000);  // Example: Charge £50 (5000 pence)
   }
 } 

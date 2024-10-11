@@ -1,6 +1,46 @@
-<h1>checkout works</h1>
+<div class="container">
+<form (submit)="onSubmit($event)">
+    <!-- Email Field -->
+    <div>
+        <label for="email">Email</label>
+        <input type="email" id="email" [(ngModel)]="email" [ngModelOptions]="{standalone: true}"
+            placeholder="test@example.com" required />
+    </div>
 
-<form >
-    <div id="card-element"></div>
-    <button type="button" (click)="onSubmit()">Pay Now</button>
+    <!-- Card Information Fields -->
+       <!-- Card Information Fields -->
+       <div class="form-group card-info">
+        <label for="card-element">Card Information</label>
+  
+        <!-- Card Number -->
+        <div id="card-number-element"></div> <!-- Stripe Card Number Element -->
+  
+        <!-- Expiration Date and CVC in a row -->
+        <div class="row">
+          <div id="card-expiry-element" class="half"></div> <!-- Stripe Card Expiry Element -->
+          <div id="card-cvc-element" class="half"></div> <!-- Stripe Card CVC Element -->
+        </div>
+      </div>
+
+    <!-- Name on Card Field -->
+    <div>
+        <label for="nameOnCard">Name on Card</label>
+        <input type="text" id="nameOnCard" [(ngModel)]="nameOnCard" [ngModelOptions]="{standalone: true}"
+            placeholder="Zhang San" required />
+    </div>
+
+    <!-- Country/Region and Postal Code Fields -->
+    <div>
+        <label for="country">Country or Region</label>
+        <select id="country" [(ngModel)]="country" [ngModelOptions]="{standalone: true}" required>
+            <option value="United States">United States</option>
+            <!-- Add more countries as needed -->
+        </select>
+        <input type="text" id="postalCode" [(ngModel)]="postalCode" [ngModelOptions]="{standalone: true}"
+            placeholder="12345" required />
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit">Pay</button>
 </form>
+</div>
