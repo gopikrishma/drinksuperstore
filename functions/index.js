@@ -23,24 +23,27 @@ const stripe = require("stripe")(
     "sk_test_51Q6zRJ08j24kfnWIJkcDYQS14RvcoFailKK85NtxuccxDF7i3PXmoWJBmXSURl8PuQI8KHaErNq03nLDGvQRu9GF00D4edMrcl",
 ); // Your secret key here
 
-// Firebase Cloud Function to create a Payment Intent in GBP
+// Firebase Cloud Function to create a Payment Intent in USD
 exports.createPaymentIntent = functions.https.onCall(async (data, context) => {
-  const {amount} = data; // The payment amount received from the frontend (in pence)
+  const {amount} = data; // Extract the amount from the data sent by the frontend
 
   try {
-    // Create a PaymentIntent with the specified amount in GBP
+    // Create a PaymentIntent with the specified amount in USD
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount, // Amount in pence
-      // e.g., 5000 for £50.00
-      currency: "gbp", // Set currency to GBP (British Pounds)#
-      
+      amount: amount, // Amount in cents (e.g., 5000 for $50.00)
+      currency: "usd", // Set currency to USD
     });
 
+    // Log the clientSecret for debugging purposes
+    console.log("Created PaymentIntent clientSecret:", paymentIntent.client_secret);
+
     // Return the clientSecret to the frontend
-    return {clientSecret: paymentIntent.client_secret};
+    return {
+      clientSecret: paymentIntent.client_secret,
+    };
   } catch (error) {
+    // Log any errors
+    console.error("Error creating PaymentIntent:", error.message);
     throw new functions.https.HttpsError("unknown", error.message);
   }
 });
-
-
