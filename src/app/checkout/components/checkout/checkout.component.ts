@@ -27,8 +27,9 @@ export class CheckoutComponent {
   private functions = inject(Functions);
 
   async ngOnInit() {
-    // Initialize Stripe.js with your public key
+    // Initialize Stripe.js with your public key (ensure it's the test key)
     this.stripe = await loadStripe('pk_test_51Q6zRJ08j24kfnWI5bVXBm9tGA5MvrHLNIycmTApAk0Erf2Odbr0DSJMdbhGgBdKoi3JsQTyODxnqSuOkPC0lwex00fD8Y20PO');
+    
     if (this.stripe) {
       this.elements = this.stripe.elements();
       
@@ -68,29 +69,29 @@ export class CheckoutComponent {
 
     try {
       // Call Firebase function and await the response (which should contain client_secret)
-      const response : any = await callable({ amount });
-  
+      const response: any = await callable({ amount });
+
       // Log the response to see what you're getting from Firebase
       console.log('Firebase callable response:', response);
-  
+
       if (this.stripe && this.card && response.data) {
         const clientSecret = response.data.clientSecret;
-  
+
         // Log the Stripe instance, card element, and client secret for debugging
         console.log('Stripe instance:', this.stripe);
         console.log('Card element:', this.card);
         console.log('Client secret:', clientSecret);
-  
+
         // Confirm the payment with Stripe
         const result = await this.stripe.confirmCardPayment(clientSecret, {
           payment_method: {
             card: this.card,  // Pass the card element
           },
         });
-  
+
         // Log the result of the payment confirmation
         console.log('Stripe payment result:', result);
-  
+
         if (result.error) {
           console.error('Payment failed:', result.error.message);
         } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
@@ -103,9 +104,9 @@ export class CheckoutComponent {
       console.error('Error creating payment intent:', error);
     }
   }
-  
+
   // Trigger the payment when the user submits the form
   onSubmit(event:any) {
     this.createPaymentIntent(5000);  // Example: Charge £50 (5000 pence)
   }
-} 
+}
